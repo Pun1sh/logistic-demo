@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+  postgres-logistic:
+    container_name: postgres-logistic
+    image: postgres
+    environment:
+      POSTGRES_DB: logistic
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - ./postgres:/data/postgres
+    expose:
+      - "5431"
+    ports:
+      - "5431:5431"
+    command: -p 5431
+    restart: always
+
+  logistic-service:
+    container_name: logistic-service
+    image: gleb00719/logistic-demo:latest
+    expose:
+        - "8080"
+    ports:
+        - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-logistic:5431/logistic
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING.LIQUIBASE.URL=jdbc:postgresql://postgres-logistic:5431/logistic
+      - SPRING.LIQUIBASE.USER=postgres
+      - SPRING.LIQUIBASE.PASSWORD=password
+    command: -p 8080
+    depends_on:
+      - postgres-logistic
